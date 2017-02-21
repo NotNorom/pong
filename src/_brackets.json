@@ -1,0 +1,16 @@
+{
+    "sass.enabled": false,
+    "path": {
+        "style.scss": {
+            "sass.enabled": true,
+            "sass.options": {
+                "outputDir": "",
+                "includePaths": [],
+                "sourceComments": false,
+                "outputStyle": "nested"
+            },
+            "useTabChar": false,
+            "spaceUnits": 4
+        }
+    }
+}
