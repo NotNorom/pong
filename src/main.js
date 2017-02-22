@@ -1,11 +1,13 @@
 var time, renderer, scene, camera;
 var bar1, bar2, ball, bb1, bb2, ballbb;
 var fieldbbup, fieldbbdown, fieldbbleft, fieldbbright;
-var collision = false;
+var collision = false, leftGoal = false, rightGoal = false;
 var moveSpeed = 5;
 var spaceFromMid = 650;
 var barHeight = 50;
 var ballMov = -5;
+var scoreBoard = document.getElementById("score");
+var pointsLeft = 0, pointsRight =0;
 
 // Set the scene size.
 var WIDTH = window.innerWidth;
@@ -33,6 +35,7 @@ bar2.position.x = spaceFromMid;
 ball = makeBox("#edf5f5");
 ball.scale.set(4, 4, 1);
 
+refreshScoreboard();
 update();
 
 // Sets up the camera and scene
@@ -75,6 +78,8 @@ function init() {
     // Setting WIDTH and HEIGHT based stuff
     fieldbbup = new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(0, HEIGHT/2, -10), new THREE.Vector3(WIDTH, 1, 10));
     fieldbbdown = new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(0, HEIGHT/-2, -10), new THREE.Vector3(WIDTH, 1, 10));
+	fieldbbleft = new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(WIDTH/-2, 0, -10), new THREE.Vector3(1, HEIGHT, 10));
+	fieldbbright = new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(WIDTH/2, 0, -10), new THREE.Vector3(1, HEIGHT, 10));
 }
 
 function makeBox(color) {
@@ -103,15 +108,36 @@ function makeBox(color) {
 function update() {
     // Draw!
     renderer.render(scene, camera);    
-    time = Date.now();
+    //time = Date.now();	
     ball.position.x += ballMov;
-    setBoundingBoxes();
-    collision = bb1.intersectsBox(ballbb) || bb2.intersectsBox(ballbb);
-    if(collision) ballMov = -ballMov;
-    movementUpdate();
-    
+    collisionHandler();    
+	movementUpdate();
     // Schedule the next frame.
     requestAnimationFrame(update);
+}
+
+function collisionHandler() {
+	setBoundingBoxes();
+	collision = bb1.intersectsBox(ballbb) || bb2.intersectsBox(ballbb);
+	if(collision) ballMov = -ballMov;
+	
+	leftGoal = ballbb.intersectsBox(fieldbbleft);
+	rightGoal = ballbb.intersectsBox(fieldbbright);
+	if(leftGoal) score("right");
+	else if(rightGoal) score("left");
+}
+
+function score(whosePoints) {
+	if(whosePoints === "left") pointsLeft++;	
+	else pointsRight++;
+	refreshScoreboard();
+	pressToStart();
+	ball.position.x = 0;
+}
+
+
+function refreshScoreboard() {
+	scoreBoard.innerHTML = pointsLeft + " - " + pointsRight;
 }
 
 function movementUpdate() {
@@ -121,10 +147,10 @@ function movementUpdate() {
     if (keys[83] && !bb1.intersectsBox(fieldbbdown)) { // s
         bar1.translateY(-moveSpeed); 
     }
-    if (keys[38] && !bb2.intersectsBox(fieldbbup)){ // w
+    if (keys[38] && !bb2.intersectsBox(fieldbbup)){ // up
         bar2.translateY(moveSpeed);
     }
-    if (keys[40] && !bb2.intersectsBox(fieldbbdown)) { // s
+    if (keys[40] && !bb2.intersectsBox(fieldbbdown)) { // down
         bar2.translateY(-moveSpeed); 
     }
 }

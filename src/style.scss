@@ -1,8 +1,10 @@
 * {
     box-sizing: border-box;
+	font-family: 'Raleway', sans-serif;
+	font-size: 40px;
 }
 
-html{
+html {
     overflow: hidden;
 }
 
@@ -11,4 +13,13 @@ body {
     margin: 0;
     //background-color: #8acdd0;
     background-color: #022839;
+}
+
+#score {
+	position: absolute;
+	text-align: center;
+	margin: auto;
+	left: 0; right: 0; bottom: 10%;
+	color: #edf5f5;
+	transition: all 0.3s ease-out;	
 }
