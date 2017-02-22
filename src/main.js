@@ -1,13 +1,16 @@
-var time, renderer, scene, camera;
+var paused = true;
+var renderer, scene, camera;
 var bar1, bar2, ball, bb1, bb2, ballbb;
 var fieldbbup, fieldbbdown, fieldbbleft, fieldbbright;
 var collision = false, leftGoal = false, rightGoal = false;
-var moveSpeed = 5;
 var spaceFromMid = 650;
+var ballMov = new THREE.Vector2(0, 0);
+var moveSpeed = 5;
 var barHeight = 50;
-var ballMov = -5;
 var scoreBoard = document.getElementById("score");
-var pointsLeft = 0, pointsRight =0;
+var pressSpace = document.getElementById("pressToPlay");
+var pointsLeft = 0, pointsRight = 0;
+
 
 // Set the scene size.
 var WIDTH = window.innerWidth;
@@ -106,20 +109,38 @@ function makeBox(color) {
 }
 
 function update() {
-    // Draw!
-    renderer.render(scene, camera);    
-    //time = Date.now();	
-    ball.position.x += ballMov;
-    collisionHandler();    
-	movementUpdate();
-    // Schedule the next frame.
-    requestAnimationFrame(update);
+	// Draw!
+	renderer.render(scene, camera);   	
+	if(!paused) {
+		ball.position.x += ballMov.x;
+		ball.position.y += ballMov.y;
+		collisionHandler();    
+		movementUpdate();
+	}	
+	else {		
+		if(keys[32]) {
+			paused = false;
+			makeBallMove();
+			pressSpace.className = "hidden";
+		}
+	}
+	// Schedule the next frame.
+	requestAnimationFrame(update);
+}
+
+function makeBallMove() {
+	ballMov.x = Math.random();
+	ballMov.y = Math.random()*0.5;
+	ballMov.normalize();
+	ballMov.multiplyScalar(5);
 }
 
 function collisionHandler() {
 	setBoundingBoxes();
-	collision = bb1.intersectsBox(ballbb) || bb2.intersectsBox(ballbb);
-	if(collision) ballMov = -ballMov;
+	collisionBar = bb1.intersectsBox(ballbb) || bb2.intersectsBox(ballbb);
+	if(collisionBar) ballMov.x = -ballMov.x;
+	collisionField = ballbb.intersectsBox(fieldbbup) || ballbb.intersectsBox(fieldbbdown);
+	if(collisionField) ballMov.y = -ballMov.y;
 	
 	leftGoal = ballbb.intersectsBox(fieldbbleft);
 	rightGoal = ballbb.intersectsBox(fieldbbright);
@@ -131,13 +152,15 @@ function score(whosePoints) {
 	if(whosePoints === "left") pointsLeft++;	
 	else pointsRight++;
 	refreshScoreboard();
-	pressToStart();
+	ballMov.multiplyScalar(0);
 	ball.position.x = 0;
+	ball.position.y = 0;
+	paused = true;
+	pressSpace.className = "";
 }
 
-
 function refreshScoreboard() {
-	scoreBoard.innerHTML = pointsLeft + " - " + pointsRight;
+	scoreBoard.innerHTML = pointsLeft + "  <span class='blue'>-</span>  " + pointsRight;
 }
 
 function movementUpdate() {

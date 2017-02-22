@@ -1,20 +1,31 @@
-/* line 1, C:/Users/BlueDrak3/Documents/#Git/pong/src/style.scss */
+/* line 5, C:/Users/BlueDrak3/Documents/#Git/pong/src/style.scss */
 * {
   box-sizing: border-box;
   font-family: 'Raleway', sans-serif;
   font-size: 40px; }
 
-/* line 7, C:/Users/BlueDrak3/Documents/#Git/pong/src/style.scss */
-html {
-  overflow: hidden; }
-
 /* line 11, C:/Users/BlueDrak3/Documents/#Git/pong/src/style.scss */
+html {
+  overflow: hidden;
+  color: #edf5f5; }
+
+/* line 16, C:/Users/BlueDrak3/Documents/#Git/pong/src/style.scss */
 body {
   padding: 0;
   margin: 0;
   background-color: #022839; }
 
-/* line 18, C:/Users/BlueDrak3/Documents/#Git/pong/src/style.scss */
+/* line 23, C:/Users/BlueDrak3/Documents/#Git/pong/src/style.scss */
+#pressToPlay {
+  transition: all 0.4s ease-out;
+  position: absolute;
+  left: 0;
+  right: 0;
+  margin: auto;
+  top: 10%;
+  text-align: center; }
+
+/* line 32, C:/Users/BlueDrak3/Documents/#Git/pong/src/style.scss */
 #score {
   position: absolute;
   text-align: center;
@@ -22,7 +33,28 @@ body {
   left: 0;
   right: 0;
   bottom: 10%;
-  color: #edf5f5;
   transition: all 0.3s ease-out; }
+
+/* line 40, C:/Users/BlueDrak3/Documents/#Git/pong/src/style.scss */
+.hidden {
+  opacity: 0;
+  transform: scale(1.3); }
+
+/* line 45, C:/Users/BlueDrak3/Documents/#Git/pong/src/style.scss */
+.pulsating {
+  font-size: 2em;
+  animation: pulsate 3s infinite; }
+
+/* line 50, C:/Users/BlueDrak3/Documents/#Git/pong/src/style.scss */
+.blue {
+  color: #8acdd0; }
+
+@keyframes pulsate {
+  0% {
+    opacity: 1; }
+  50% {
+    opacity: 0.2; }
+  100% {
+    opacity: 1; } }
 
 /*# sourceMappingURL=style.css.map */
