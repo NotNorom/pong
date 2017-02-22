@@ -28,11 +28,11 @@ var keyUp = function(e) {
 init();
 
 bar1 = makeBox("#8acdd0");
-bar1.scale.set(5,barHeight,1);
+bar1.scale.set(4,barHeight,1);
 bar1.position.x = -spaceFromMid;
 
 bar2 = makeBox("#8acdd0");
-bar2.scale.set(5,barHeight,1);
+bar2.scale.set(4,barHeight,1);
 bar2.position.x = spaceFromMid;
 
 ball = makeBox("#edf5f5");
@@ -79,10 +79,10 @@ function init() {
     container.appendChild(renderer.domElement);
     
     // Setting WIDTH and HEIGHT based stuff
-    fieldbbup = new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(0, HEIGHT/2, -10), new THREE.Vector3(WIDTH, 1, 10));
-    fieldbbdown = new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(0, HEIGHT/-2, -10), new THREE.Vector3(WIDTH, 1, 10));
-	fieldbbleft = new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(WIDTH/-2, 0, -10), new THREE.Vector3(1, HEIGHT, 10));
-	fieldbbright = new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(WIDTH/2, 0, -10), new THREE.Vector3(1, HEIGHT, 10));
+    fieldbbup = new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(0, HEIGHT/2, -10), new THREE.Vector3(WIDTH, 30, 10));
+    fieldbbdown = new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(0, HEIGHT/-2, -10), new THREE.Vector3(WIDTH, 30, 10));
+	fieldbbleft = new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(WIDTH/-2, 0, -10), new THREE.Vector3(30, HEIGHT, 10));
+	fieldbbright = new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(WIDTH/2, 0, -10), new THREE.Vector3(30, HEIGHT, 10));
 }
 
 function makeBox(color) {
@@ -138,9 +138,9 @@ function makeBallMove() {
 function collisionHandler() {
 	setBoundingBoxes();
 	collisionBar = bb1.intersectsBox(ballbb) || bb2.intersectsBox(ballbb);
-	if(collisionBar) ballMov.x = -ballMov.x;
+	if(collisionBar) {ballMov.x = -ballMov.x; ballMov.multiplyScalar(1.3);} 
 	collisionField = ballbb.intersectsBox(fieldbbup) || ballbb.intersectsBox(fieldbbdown);
-	if(collisionField) ballMov.y = -ballMov.y;
+	if(collisionField) {ballMov.y = -ballMov.y; ballMov.multiplyScalar(1.3);} 
 	
 	leftGoal = ballbb.intersectsBox(fieldbbleft);
 	rightGoal = ballbb.intersectsBox(fieldbbright);
