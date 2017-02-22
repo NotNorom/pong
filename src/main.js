@@ -138,9 +138,9 @@ function makeBallMove() {
 function collisionHandler() {
 	setBoundingBoxes();
 	collisionBar = bb1.intersectsBox(ballbb) || bb2.intersectsBox(ballbb);
-	if(collisionBar) {ballMov.x = -ballMov.x; ballMov.multiplyScalar(1.3);} 
+	if(collisionBar) {ballMov.x = -ballMov.x; ballMov.multiplyScalar(1.1);} 
 	collisionField = ballbb.intersectsBox(fieldbbup) || ballbb.intersectsBox(fieldbbdown);
-	if(collisionField) {ballMov.y = -ballMov.y; ballMov.multiplyScalar(1.3);} 
+	if(collisionField) {ballMov.y = -ballMov.y; ballMov.multiplyScalar(1.1);} 
 	
 	leftGoal = ballbb.intersectsBox(fieldbbleft);
 	rightGoal = ballbb.intersectsBox(fieldbbright);
