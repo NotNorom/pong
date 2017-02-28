@@ -1,5 +1,5 @@
 var paused = true;
-var renderer, scene, camera;
+var renderer, scene, camera, light, bg, light2;
 var bar1, bar2, ball, bb1, bb2, ballbb;
 var fieldbbup, fieldbbdown, fieldbbleft, fieldbbright;
 var collision = false, leftGoal = false, rightGoal = false;
@@ -10,6 +10,7 @@ var barHeight = 50;
 var scoreBoard = document.getElementById("score");
 var pressSpace = document.getElementById("pressToPlay");
 var pointsLeft = 0, pointsRight = 0;
+var extrudeSettings = {steps: 1, amount: 1, bevelEnabled: false};
 
 
 // Set the scene size.
@@ -27,16 +28,28 @@ var keyUp = function(e) {
 
 init();
 
-bar1 = makeBox("#8acdd0");
+makeBG = (function() {
+	var geo = new THREE.PlaneBufferGeometry(WIDTH, HEIGHT);
+	var mat = new THREE.MeshStandardMaterial({color: "#022839", specular:"#000000", shininess: 0});
+	var plane = new THREE.Mesh(geo, mat);
+	plane.position.z = -1;
+	plane.receiveShadow = true;
+	scene.add(plane);
+	return plane;
+});
+bg = makeBG();
+
+bar1 = makeBox("#8acdd0", "shadow");
 bar1.scale.set(4,barHeight,1);
 bar1.position.x = -spaceFromMid;
 
-bar2 = makeBox("#8acdd0");
+bar2 = makeBox("#8acdd0", "shadow");
 bar2.scale.set(4,barHeight,1);
 bar2.position.x = spaceFromMid;
 
 ball = makeBox("#edf5f5");
 ball.scale.set(4, 4, 1);
+//ball.position.z = 2;
 
 refreshScoreboard();
 update();
@@ -56,7 +69,7 @@ function init() {
 
     // Create a WebGL renderer, camera
     // and a scene
-    renderer = new THREE.WebGLRenderer();
+    renderer = new THREE.WebGLRenderer({antialias: true});
 
     camera =
           new THREE.OrthographicCamera(
@@ -64,46 +77,57 @@ function init() {
               NEAR,
               FAR
           );
-
+	camera.position.z = 10;
+	
     scene = new THREE.Scene();
     scene.background = new THREE.Color( "#022839" );
-
-    // Add the camera to the scene.
+	
+	light = new THREE.PointLight(0xffffff, 10, 0, 2);
+	light.position.set(0, 0, 1);
+	light.castShadow = true;
+	
+	//Set up shadow properties for the light
+	light.shadow.mapSize.width = 1024;
+	light.shadow.mapSize.height = 1024;
+	light.shadow.camera.near = 0.5;      
+	light.shadow.camera.far = 2500;
+	
+	light2 = new THREE.AmbientLight(0xffffff, 0.2);
+	
+    // Add the camera and light to the scene.
     scene.add(camera);
+	scene.add(light);
+	scene.add(light2);
 
     // Start the renderer.
     renderer.setSize(WIDTH, HEIGHT);
-
-    // Attach the renderer-supplied
-    // DOM element.
+	renderer.shadowMap.enabled = true;
+	//renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+	
+    // Attach the renderer-supplied DOM element.
     container.appendChild(renderer.domElement);
     
     // Setting WIDTH and HEIGHT based stuff
-    fieldbbup = new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(0, HEIGHT/2, -10), new THREE.Vector3(WIDTH, 30, 10));
-    fieldbbdown = new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(0, HEIGHT/-2, -10), new THREE.Vector3(WIDTH, 30, 10));
-	fieldbbleft = new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(WIDTH/-2, 0, -10), new THREE.Vector3(30, HEIGHT, 10));
-	fieldbbright = new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(WIDTH/2, 0, -10), new THREE.Vector3(30, HEIGHT, 10));
+    fieldbbup = new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(0, HEIGHT/2, 0), new THREE.Vector3(WIDTH, 30, 10));
+    fieldbbdown = new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(0, HEIGHT/-2, 0), new THREE.Vector3(WIDTH, 30, 10));
+	fieldbbleft = new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(WIDTH/-2, 0, 0), new THREE.Vector3(30, HEIGHT, 10));
+	fieldbbright = new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(WIDTH/2, 0, 0), new THREE.Vector3(30, HEIGHT, 10));
 }
 
-function makeBox(color) {
-    var geometry = new THREE.BufferGeometry();
-    // create a simple square shape. We duplicate the top left and bottom right
-    // vertices because each vertex needs to appear once per triangle.
-    var vertices = new Float32Array( [
-        -1.0, -1.0,  1.0,
-        1.0, -1.0,  1.0,
-        1.0,  1.0,  1.0,
-
-        1.0,  1.0,  1.0,
-        -1.0,  1.0,  1.0,
-        -1.0, -1.0,  1.0
-    ] );
-    // itemSize = 3 because there are 3 values (components) per vertex
-    geometry.addAttribute( 'position', new THREE.BufferAttribute( vertices, 3 ) );
+function makeBox(color, shadow) {
+    var shape = new THREE.Shape;
+	shape.moveTo(-1, -1);
+	shape.lineTo(-1, 1);
+	shape.lineTo(1, 1);
+	shape.lineTo(1, -1);
+	shape.lineTo(-1, -1);
+	
+	var geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);	
     var material = new THREE.MeshBasicMaterial( { color: color } );
-    var bar = new THREE.Mesh( geometry, material );
+    var bar = new THREE.Mesh(geometry, material);
+	if(shadow === "shadow")	bar.castShadow = true;
     
-    bar.position.z = -10;
+    bar.position.z = 0;
     scene.add(bar);
     return bar;
 }
@@ -114,6 +138,8 @@ function update() {
 	if(!paused) {
 		ball.position.x += ballMov.x;
 		ball.position.y += ballMov.y;
+		light.position.x = ball.position.x;
+		light.position.y = ball.position.y;
 		collisionHandler();    
 		movementUpdate();
 	}	
@@ -155,6 +181,8 @@ function score(whosePoints) {
 	ballMov.multiplyScalar(0);
 	ball.position.x = 0;
 	ball.position.y = 0;
+	light.position.x = 0;
+	light.position.y = 0;
 	paused = true;
 	pressSpace.className = "";
 }
